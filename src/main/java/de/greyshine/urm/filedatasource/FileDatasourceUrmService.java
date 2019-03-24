@@ -39,6 +39,11 @@ public class FileDatasourceUrmService implements UrmService {
 	public void setUserInSession(HttpSession httpSession, String user) {
 		UrmService.defaultSetUser(httpSession, user);
 	}
+	
+	@Override
+	public void logout(HttpSession httpSession) {
+		UrmService.defaultLogout(httpSession);
+	}
 
 	public boolean isUser(String user) {
 		

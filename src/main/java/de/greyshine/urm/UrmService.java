@@ -13,13 +13,14 @@ public interface UrmService {
 	boolean isUserAnyRight(String user, String... rights);
 	boolean isUserRight(String user, String right);
 	void setUserInSession(HttpSession httpSession, String user);
+	void logout(HttpSession httpSession);
 	
 	static void defaultSetUser(HttpSession httpSession, String user) {
 		
 		if ( httpSession == null ) { return; }
 		
 		String userInSession = null;
-		try {
+		try { 
 			userInSession = (String)httpSession.getAttribute( HTTPSESSIONKEY_USERNAME );
 		} catch(Exception e) {
 			httpSession.removeAttribute( HTTPSESSIONKEY_USERNAME );
@@ -35,4 +36,13 @@ public interface UrmService {
 		
 		httpSession.setAttribute( HTTPSESSIONKEY_USERNAME, user);
 	}
+	
+	static void defaultLogout(HttpSession httpSession) {
+	
+		if ( httpSession == null ) { return; }
+		
+		httpSession.removeAttribute( HTTPSESSIONKEY_USERNAME );
+		httpSession.invalidate();
+	}
+	
 }

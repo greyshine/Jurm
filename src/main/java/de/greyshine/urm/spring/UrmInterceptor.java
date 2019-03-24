@@ -20,6 +20,7 @@ import de.greyshine.urm.UrmService;
 public class UrmInterceptor implements HandlerInterceptor {
 	
 	private static final Logger LOG = LoggerFactory.getLogger( UrmInterceptor.class );
+	private static final Logger LOG_URM = LoggerFactory.getLogger( UrmInterceptor.class );
 	
 	@Autowired
 	private UrmService urmService;
@@ -37,33 +38,39 @@ public class UrmInterceptor implements HandlerInterceptor {
 		final Urm urmAnnotation = method.getDeclaredAnnotation( Urm.class );
 		
 		if ( urmAnnotation == null ) {
-			// TODO: check class if annotation is present
 			return HandlerInterceptor.super.preHandle(request, response, handler);
 		}
 		
 		final String user = getSessionUser( request );
 		
 		if ( user == null ) {
+			LOG_URM.info( "not logged in tried to access: {}", requestToString(request) );
 			response.sendError( HttpServletResponse.SC_UNAUTHORIZED );
 			return false;
 		}
 		
-		if ( urmService.isUserAnyRight(user, urmAnnotation.value()) ) {
+		if ( !urmService.isUserAnyRight(user, urmAnnotation.value()) ) {
+			LOG_URM.info( "bad user rights tried to access: {}", requestToString(request) );
 			response.sendError( HttpServletResponse.SC_UNAUTHORIZED );
 			return false;
 		}
 		
-		LOG.info("serving user: {} on {}", user, method);
+		LOG.debug("serving user: {} on {}", user, method);
+		LOG_URM.info( "serving user: {} on {}", user, method );
 		
 		return HandlerInterceptor.super.preHandle(request, response, handler);
 	}
 
+	private String requestToString(HttpServletRequest request) {
+		return String.valueOf( request );
+	}
+
 	private String getSessionUser(HttpServletRequest request) {
 		
-		HttpSession httpSession = request.getSession(false);
+		final HttpSession httpSession = request.getSession(false);
 		if ( httpSession == null ) { return null; }
 		
-		Object userName = httpSession.getAttribute( UrmService.HTTPSESSIONKEY_USERNAME );
+		final Object userName = httpSession.getAttribute( UrmService.HTTPSESSIONKEY_USERNAME );
 		
 		if ( !(userName instanceof String) || userName.toString().trim().isEmpty() ) { return null; }
 		

@@ -1,9 +1,7 @@
 package de.greyshine.urm.test;
 
 import java.net.URL;
-import java.util.Enumeration;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.junit.Assert;

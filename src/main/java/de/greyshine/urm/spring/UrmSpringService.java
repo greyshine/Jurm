@@ -38,6 +38,11 @@ public class UrmSpringService implements UrmService {
 	public boolean isUserAnyRight(String user, String... rights) {
 		return urmService.isUserAnyRight(user, rights);
 	}
+
+	@Override
+	public void logout(HttpSession httpSession) {
+		urmService.logout(httpSession);
+	}
 		
 	
 }

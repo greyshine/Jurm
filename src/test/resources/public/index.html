@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+	<title>Jurm Testing</title>
+	<!-- see here: https://code.jquery.com/ -->
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+ 	
+ 	<script type="text/javascript">
+ 	
+ 		$(document).ready( function() {
+ 			
+ 			$('#formLogin').submit( function(event) {
+ 				
+ 				event.preventDefault();
+ 				
+ 				$.ajax( {
+ 					
+ 					url: '/login',
+ 					method: 'post',
+ 					data: { user: $('#formLoginFieldUser').val() },
+ 					success: function(data, textStatus, jqXHR) {
+ 						location.reload(true);
+ 					},
+ 					error: function( jqXHR, textStatus, errorThrown) {
+ 						console.log( arguments );
+ 						alert('login error: '+ jqXHR.status +'; '+ errorThrown +"; "+ textStatus);
+ 						$( '#status' ).text('');
+ 					},
+ 				} );
+ 			} );
+ 		
+ 		} );
+ 		
+ 		var checkUser = function() {
+ 			$.ajax( {
+				url: '/login',
+				method: 'get',
+				success: function(data, textStatus, jqXHR) {
+					//alert('user: '+ data);
+					$( '#status' ).text( data==null?'':data );
+				},
+ 				error: function( jqXHR, textStatus, errorThrown) {
+ 					alert('check user error: '+ jqXHR.status +'; '+ errorThrown +"; "+ textStatus);
+ 				}
+			});
+ 		};
+ 			
+ 		var handle = function( url ) {
+ 			$.ajax( {
+					url: '/'+ url,
+					method: 'get',
+					success: function(data, textStatus, jqXHR) {
+						$( '#result' ).val( new Date() +'\n'+data );
+					},
+					error: function( jqXHR, textStatus, errorThrown) {
+						$( '#result' ).val( new Date() +'\nerror: '+ jqXHR.status  +'; '+errorThrown +'\n'+ textStatus );
+					},
+				} );
+ 		};
+ 		
+ 		checkUser();
+	</script>
+</head>
+
+<body>
+
+	<h1>Jurm Testing</h1>
+	<hr/>
+		Logged in: <span id="status"></span>
+	<hr/>
+	
+	<form id="formLogin" method="post" action="/login">
+		<input id="formLoginFieldUser" type="text" name="user" placeholder="user"  />
+		<input type="submit" value="Login" />
+	</form>
+	<div style="font-style: italic; font-size: 0.8em;">for the sake of the example no password is used</div>
+	<hr/>
+	
+	<div><a href="#" onclick="handle('handleRoot');" >/handleRoot</a></div>
+	<div><a href="#" onclick="handle('handleUser1');" >/handleUser1</a></div>
+	
+	<hr/>
+	<textarea id="result" rows="20" style="width: 99%; background-color: lightgray;" readonly="readonly"></textarea>
+	
+</body>
+</html>
