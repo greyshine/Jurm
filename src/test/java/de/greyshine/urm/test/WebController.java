@@ -55,10 +55,20 @@ public class WebController implements WebMvcConfigurer {
 		return "helloworld";
 	}
 
+	/**
+	 * @param httpSession
+	 * @return
+	 */
 	@GetMapping(value = "/login", produces = MediaType.TEXT_PLAIN_VALUE)
 	@ResponseBody
 	public String login(HttpSession httpSession) {
-		return httpSession == null ? "" : (String) httpSession.getAttribute(UrmService.HTTPSESSIONKEY_USERNAME);
+		
+		String result = httpSession == null ? null : (String) httpSession.getAttribute(UrmService.HTTPSESSIONKEY_USERNAME); 
+		result = result == null || result.trim().isEmpty() ? "" : result.trim();
+		
+		LOG.debug( "responding: '{}'", result );
+		
+		return result;
 	}
 
 	@PostMapping(value = "/login", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -71,16 +81,19 @@ public class WebController implements WebMvcConfigurer {
 		user = user == null || user.trim().isEmpty() ? null : user.trim();
 
 		if (user == null) {
-			
-			final HttpSession httpSession = hsReq.getSession( false );
-			if ( httpSession == null || !(httpSession.getAttribute( UrmService.HTTPSESSIONKEY_USERNAME ) instanceof String) ) {
+
+			final HttpSession httpSession = hsReq.getSession(false);
+			if (httpSession == null
+					|| !(httpSession.getAttribute(UrmService.HTTPSESSIONKEY_USERNAME) instanceof String)) {
 				hsRes.sendError(200, "no user given");
 				return null;
 			}
+
+			user = String.valueOf(httpSession.getAttribute(UrmService.HTTPSESSIONKEY_USERNAME));
+			urmService.logout(hsReq.getSession(false));
 			
-			user = String.valueOf( httpSession.getAttribute(UrmService.HTTPSESSIONKEY_USERNAME) );
-			urmService.logout( hsReq.getSession(false) );
-			return "";
+			LOG.info( "logout: {}", user );
+			return RESPONSE_OK;
 		}
 
 		if (urmService.isUser(user) == false) {
@@ -102,6 +115,24 @@ public class WebController implements WebMvcConfigurer {
 	@Urm("root")
 	@ResponseBody
 	public String onlyRoot() {
+		return RESPONSE_OK;
+	}
+
+	@GetMapping(value = "/handleRight1")
+	// having 'produces' attribute declared will return '406' on bad requests:
+	// @GetMapping( value="/handleRoot", produces=MediaType.TEXT_PLAIN_VALUE )
+	@Urm("right1")
+	@ResponseBody
+	public String right1() {
+		return RESPONSE_OK;
+	}
+
+	@GetMapping(value = "/handleRight2")
+	// having 'produces' attribute declared will return '406' on bad requests:
+	// @GetMapping( value="/handleRoot", produces=MediaType.TEXT_PLAIN_VALUE )
+	@Urm("right2")
+	@ResponseBody
+	public String right2() {
 		return RESPONSE_OK;
 	}
 

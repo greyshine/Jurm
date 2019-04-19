@@ -22,6 +22,8 @@ public class UrmInterceptor implements HandlerInterceptor {
 	private static final Logger LOG = LoggerFactory.getLogger( UrmInterceptor.class );
 	private static final Logger LOG_URM = LoggerFactory.getLogger( UrmInterceptor.class );
 	
+	private static final ThreadLocal<String> TL_USERID = new ThreadLocal<>();
+	
 	@Autowired
 	private UrmService urmService;
 	
@@ -75,6 +77,20 @@ public class UrmInterceptor implements HandlerInterceptor {
 		if ( !(userName instanceof String) || userName.toString().trim().isEmpty() ) { return null; }
 		
 		return userName.toString();
+	}
+	
+	public void setThreadLocalUserId(String userId) {
+		
+		if ( userId == null || userId.trim().isEmpty() ) { 
+			TL_USERID.remove();
+			return;
+		}
+		
+		TL_USERID.set( userId );
+	}
+	
+	public String getThreadLocalUserId() {
+		return TL_USERID.get();
 	}
 	
 }
